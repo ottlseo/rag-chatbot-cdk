@@ -1,7 +1,10 @@
 import streamlit as st 
 from langchain.callbacks import StreamlitCallbackHandler
-import apiHandler as glib  # 로컬 라이브러리 스크립트에 대한 참조
-from utils import upload_file_to_custom_docs_bucket, check_file_type, get_all_files, initialize_bucket
+import apiHandler as api  # 로컬 라이브러리 스크립트에 대한 참조
+import utils as util # import upload_file_to_custom_docs_bucket, check_file_type, get_all_files, initialize_bucket
+
+DEFAULT = "df"
+CUSTOM = "ct"
 
 def show_document_info_label():
     with st.container(border=True):
@@ -26,12 +29,12 @@ def custom_file_uploader():
         
         if uploaded_files:
             for uploaded_file in uploaded_files:
-                if not check_file_type(uploaded_file):
+                if not util.check_file_type(uploaded_file):
                     st.markdown(f':red[🚨 지원하지 않는 파일 형식입니다]: {uploaded_file.name}')
                 else:
                     with st.spinner("문서를 S3에 업로드하는 중입니다."):
                         # if st.session_state.document_obj_name == None:
-                        upload_result = upload_file_to_custom_docs_bucket(uploaded_file)
+                        upload_result = util.upload_file_to_custom_docs_bucket(uploaded_file)
                         st.session_state.document_obj_name = upload_result
                         # TODO: embedding_result 받아오는 코드 추가
                     st.markdown(f':green[✅ 파일 업로드 완료]: {st.session_state.document_obj_name}')
@@ -89,13 +92,13 @@ with st.sidebar: # Sidebar 모델 옵션
     st.markdown('''# Step 3. 끝이에요! 문서의 내용을 질문해보세요 💭 ''')
 
     with st.expander('''현재 업로드된 문서 보기'''):
-        files = get_all_files()
+        files = util.get_all_files()
         st.session_state.document_obj_list = files
         for obj in st.session_state.document_obj_list:
             st.markdown(f'- {obj}')
 
         if st.button("버킷 초기화하기", type="primary"):
-            initialize_bucket()
+            util.initialize_bucket()
             st.session_state.document_obj_list = []
 
 ###### Use sample document ######
@@ -120,15 +123,12 @@ if st.session_state.document_type == "Use sample document":
         st.chat_message("user").write(query)
         
         # UI 출력
-        answer = "test" # FOR TEST 
+        answer = api.query(question=query, document_type=DEFAULT)
         st.chat_message("assistant").write(answer)
-
+        
         # Session 메세지 저장
         st.session_state.messages.append({"role": "assistant", "content": answer})
         
-        # Thinking을 complete로 수동으로 바꾸어 줌
-        # st_cb._complete_current_thought()
-
 ###### Upload your document ######
 else:
     show_document_info_label()
@@ -154,7 +154,7 @@ else:
             st.chat_message("user").write(query)
 
             # UI 출력
-            answer = "test" # FOR TEST 
+            answer = api.query(question=query, document_type=CUSTOM)
             st.chat_message("assistant").write(answer)
 
             # Session 메세지 저장
