@@ -1,8 +1,7 @@
-import base64
 import streamlit as st 
 from langchain.callbacks import StreamlitCallbackHandler
 import apiHandler as glib  # 로컬 라이브러리 스크립트에 대한 참조
-from utils import upload_file_to_custom_docs_bucket
+from utils import upload_file_to_custom_docs_bucket, check_file_type, get_all_files, initialize_bucket
 
 def show_document_info_label():
     with st.container(border=True):
@@ -12,47 +11,67 @@ def show_document_info_label():
             st.markdown('''다른 문서로 챗봇 서비스를 이용해보고 싶다면 왼쪽 사이드바의 Step 1에서 *'Upload your document'* 옵션을 클릭하고, 문서를 새로 인덱싱하여 사용해보세요.''')
         else:
             st.markdown('''#### 💁‍♀️ 원하는 문서를 기반으로 RAG 챗봇 이용하기 Guide''') 
-            st.markdown('''- **왼쪽 사이드바의 Step 2를 따라, 문서를 업로드** 해주세요. 새로운 문서를 Knowledge Base에 인덱싱하는 데에는 **약 5분 이상** 소요될 수 있어요.''')
+            st.markdown('''- **왼쪽 사이드바의 Step 2를 따라, 문서를 업로드** 해주세요. 새로운 문서를 Knowledge Base에 인덱싱하는 데에는 **약 3~5분 정도** 소요될 수 있어요.''')
             st.markdown('''- 기존 문서 (산업안전보건법 PDF)로 돌아가고 싶다면 사이드바의 Step 1에서 *'Use sample document'* 옵션을 선택하면 바로 변경할 수 있습니다.''')
 
 def custom_file_uploader():
     with st.container(border=True):
         st.markdown('''#### 챗봇 서비스에 활용하고자 하는 문서를 업로드해보세요 👇''')
-        uploaded_file = st.file_uploader(
-            "문서의 내용을 임베딩하는 데에는 약 5분 정도 소요됩니다.",
-            disabled=st.session_state.document_type=="Use sample document"
+        uploaded_files = st.file_uploader(
+            '''`.pdf` `.doc` `.docx` `.txt` `.md` `.html` `.csv` `.xls` `.xlsx`    
+            지원하는 파일 형식은 위와 같습니다.''',
+            disabled=st.session_state.document_type=="Use sample document",
+            accept_multiple_files=True
             )
-        if uploaded_file:
-            if st.session_state.document_type == "Use sample document":
-                uploaded_file=None
-            else: 
-                with st.spinner("문서를 S3에 업로드하는 중입니다."):
-                    if st.session_state.document_obj_name == None:
+        
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                if not check_file_type(uploaded_file):
+                    st.markdown(f':red[🚨 지원하지 않는 파일 형식입니다]: {uploaded_file.name}')
+                else:
+                    with st.spinner("문서를 S3에 업로드하는 중입니다."):
+                        # if st.session_state.document_obj_name == None:
                         upload_result = upload_file_to_custom_docs_bucket(uploaded_file)
                         st.session_state.document_obj_name = upload_result
-                    # TODO: embedding_result 받아오는 코드 추가
-                st.markdown(f'(임시 출력) 파일 업로드 완료: {st.session_state.document_obj_name}') # TODO: delete it
+                        # TODO: embedding_result 받아오는 코드 추가
+                    st.markdown(f':green[✅ 파일 업로드 완료]: {st.session_state.document_obj_name}')
     
 ####################### Application ###############################
 st.set_page_config(layout="wide")
-st.title("AWS Q&A Chatbot by Easy Serverless RAG!") 
-
-st.markdown('''- **Easy Serverless RAG**란? 
-            서버리스 기술과 AWS CDK를 활용해 누구나 한 번에 배포해 사용할 수 있도록 만들어진 RAG 솔루션입니다. 
+st.title("Welcome to AWS RAG Demo!") 
+st.markdown('''#### Bedrock Knowledge Base와 CDK로 한 번에 배포하는 RAG Chatbot''')
+st.markdown('''- 이 데모는 서버리스 기술과 AWS CDK를 활용해 누구나 한 번에 배포해 사용할 수 있도록 만들어진 RAG 솔루션입니다. 
             복잡하게 느껴질 수 있는 VectorStore Embedding 작업부터 Amazon OpenSearch 클러스터 생성 및 문서 인덱싱, Bedrock 세팅까지 모든 작업을 서버리스를 활용해 자동화함으로써 RAG 개발 및 테스트를 하고싶은 누구나 빠르게 활용할 수 있도록 돕는 것을 목표로 하고 있습니다. 
             ''')
-st.markdown('''- [Github](https://github.com/ottlseo/easy-serverless-rag)에서 코드를 확인할 수 있습니다.''') 
-st.markdown('''- 이미지나 표가 포함되어 있는 PDF/PPT 문서에서도 원하는 정보를 검색할 수 있도록 멀티모달 인식 성능을 높이는 데 아래와 같은 아키텍처가 사용되었으며, 모든 인덱싱 과정은 AWS Lambda와 Step Functions, SQS를 활용하여 서버리스로 구현되었습니다.''')
+st.markdown('''- [Github](https://github.com/ottlseo/rag-chatbot-cdk)에서 코드를 확인하실 수 있습니다.''')
 
-# with st.popover("👉 **멀티모달 아키텍처 확인하기**"):
-#     st.markdown('''이 챗봇은 Amazon Bedrock과 Claude v3 Sonnet 모델로 구현되었습니다. 원본 데이터는 Amazon OpenSearch에 저장되어 있으며, Amazon Titan 임베딩 모델이 사용되었습니다.''')
-#     st.image('complex-pdf-workflow.png')
+col1, col2, col3 = st.columns([1, 1, 1])
+with col1:
+    with st.popover("👉 **RAG 구축 아키텍처 확인하기**"):
+        st.markdown('''##### 해당 아키텍처는 아래의 2가지의 기능을 구현합니다.''') 
+        st.markdown('''1. `SyncKnowledgeBase` Lambda는 S3 버킷에 문서가 업로드될 때 트리거되며, 내부에서 Knowledge Base와 연동된 Bedrock agent를 호출하여 문서 인덱싱을 진행하고 데이터를 업데이트합니다. ''') 
+        st.markdown('''2. 업데이트된 Knowledge Base를 활용해, 사용자가 질문을 입력하면 문서를 바탕으로 답변을 생성하는 RAG Query 기능이 API 형태로 배포됩니다. API Gateway와 `QueryKnowledgeBase` Lambda를 활용해 REST API가 배포되고, 이렇게 배포된 API를 어느 애플리케이션에서든 호출해 사용할 수 있습니다.''')
+        st.image('architecture.png')
+with col2:
+    with st.popover("👉 **어떻게 배포하나요?**"):
+        st.markdown('''AWS CDK를 이용해 누구나 자신의 AWS 환경에 이 데모를 배포할 수 있어요.    
+                    아래 Github 가이드를 따라 배포해보세요.''')
+        st.markdown('''### 💻 [How to build](https://github.com/ottlseo/rag-chatbot-cdk/blob/main/README.md)''')
+with col3:
+    with st.popover("👉 **이 UI는 어떻게 만들어졌나요?**"):
+        st.markdown('''이 챗봇은 [Streamlit](https://docs.streamlit.io/)을 이용해 만들어졌어요.   
+                    Streamlit은 간단한 Python 기반 코드로 대화형 웹앱을 구축 가능한 오픈소스 라이브러리입니다.    
+                    아래 app.py 코드를 통해 Streamlit을 통해 간단히 챗봇 데모를 만드는 방법에 대해 알아보세요.
+                    ''')
+        st.markdown('''### 💁‍♀️ [app.py 코드 확인하기](https://github.com/ottlseo/rag-chatbot-cdk/blob/main/frontend/app.py)''')
 
 # Store the initial value of widgets in session state
 if "document_type" not in st.session_state:
     st.session_state.document_type = "Upload your document"
 if "document_obj_name" not in st.session_state:
     st.session_state.document_obj_name = None
+if "document_obj_list" not in st.session_state:
+    st.session_state.document_obj_list = []
 
 with st.sidebar: # Sidebar 모델 옵션
     # st.markdown('''# 🎉 이용 가이드 ''')
@@ -68,7 +87,17 @@ with st.sidebar: # Sidebar 모델 옵션
     custom_file_uploader()
     
     st.markdown('''# Step 3. 끝이에요! 문서의 내용을 질문해보세요 💭 ''')
-    
+
+    with st.expander('''현재 업로드된 문서 보기'''):
+        files = get_all_files()
+        st.session_state.document_obj_list = files
+        for obj in st.session_state.document_obj_list:
+            st.markdown(f'- {obj}')
+
+        if st.button("버킷 초기화하기", type="primary"):
+            initialize_bucket()
+            st.session_state.document_obj_list = []
+
 ###### Use sample document ######
 if st.session_state.document_type == "Use sample document":
     show_document_info_label()
@@ -90,27 +119,6 @@ if st.session_state.document_type == "Use sample document":
         # UI에 출력
         st.chat_message("user").write(query)
         
-        # Streamlit callback handler로 bedrock streaming 받아오는 컨테이너 설정
-        # st_cb = StreamlitCallbackHandler(
-        #     st.chat_message("assistant"), 
-        #     collapse_completed_thoughts=True
-        #     )
-        # # bedrock.py의 invoke 함수 사용
-        # response = glib.invoke(
-        #     query=query, 
-        #     streaming_callback=st_cb, 
-        #     parent=parent, 
-        #     reranker=reranker,
-        #     hyde = hyde,
-        #     ragfusion = ragfusion,
-        #     alpha = alpha,
-        #     document_type=st.session_state.document_type
-        # )
-
-        # response 로 메세지, 링크, 레퍼런스(source_documents) 받아오게 설정된 것을 변수로 저장
-        # answer = response[0]
-        # contexts = response[1]
-
         # UI 출력
         answer = "test" # FOR TEST 
         st.chat_message("assistant").write(answer)
@@ -125,27 +133,30 @@ if st.session_state.document_type == "Use sample document":
 else:
     show_document_info_label()
     
-    # if "messages" not in st.session_state:
-    #     st.session_state["messages"] = [
-    #         {"role": "assistant", "content": "안녕하세요, 무엇이 궁금하세요?"}
-    #     ]
-    # # 지난 답변 출력
-    # for msg in st.session_state.messages:
-    #     st.chat_message(msg["role"]).write(msg["content"])
-    
-    # # 유저가 쓴 chat을 query라는 변수에 담음
-    # query = st.chat_input("Search documentation")
-    # if query:
-    #     # Session에 메세지 저장
-    #     st.session_state.messages.append({"role": "user", "content": query})
+    if st.session_state.document_obj_list == []: 
+        st.markdown('''##### :red[왼쪽에서 먼저 문서를 업로드해주세요.]''')
+    else: # 업로드된 문서가 있는 경우
+        if "messages" not in st.session_state:
+            st.session_state["messages"] = [
+                {"role": "assistant", "content": "안녕하세요, 무엇이 궁금하세요?"}
+            ]
+        # 지난 답변 출력
+        for msg in st.session_state.messages:
+            st.chat_message(msg["role"]).write(msg["content"])
         
-    #     # UI에 출력
-    #     st.chat_message("user").write(query)
+        # 유저가 쓴 chat을 query라는 변수에 담음
+        query = st.chat_input("Search documentation")
+        if query:
+            # Session에 메세지 저장
+            st.session_state.messages.append({"role": "user", "content": query})
+            
+            # UI에 출력
+            st.chat_message("user").write(query)
 
-    #     # UI 출력
-    #     answer = "test" # FOR TEST 
-    #     st.chat_message("assistant").write(answer)
+            # UI 출력
+            answer = "test" # FOR TEST 
+            st.chat_message("assistant").write(answer)
 
-    #     # Session 메세지 저장
-    #     st.session_state.messages.append({"role": "assistant", "content": answer})
-        
+            # Session 메세지 저장
+            st.session_state.messages.append({"role": "assistant", "content": answer})
+         
