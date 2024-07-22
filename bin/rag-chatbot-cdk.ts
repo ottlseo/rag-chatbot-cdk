@@ -27,7 +27,7 @@ const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, {
         region: DEFAULT_REGION,
       },
 });
-// webStack.addDependency(syncStack);
-// webStack.addDependency(queryStack);
+webStack.addDependency(syncStack);
+webStack.addDependency(queryStack);
 
 app.synth();
