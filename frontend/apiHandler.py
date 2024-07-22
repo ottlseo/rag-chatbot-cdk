@@ -1,14 +1,15 @@
 import requests
+from utils import DocumentType
 
-DEFAULT_API_URL="https://srd975v4x3.execute-api.us-west-2.amazonaws.com/prod/query" # { 'question': '...' }
-CUSTOM_API_URL="https://srd975v4x3.execute-api.us-west-2.amazonaws.com/prod/query" # { 'question': '...' }
+API_URL_BASE="https://srd975v4x3.execute-api.us-west-2.amazonaws.com/prod/" # { 'question': '...' }
 
-def query(question, document_type="df"):
-    if document_type == "df":
-        api_url = DEFAULT_API_URL
-    else: 
-        api_url = CUSTOM_API_URL
+def query(question, document_type=DocumentType.DEFAULT):
     
+    if document_type == DocumentType.DEFAULT:
+        api_url = API_URL_BASE + DocumentType.DEFAULT
+    else:
+        api_url = API_URL_BASE + DocumentType.CUSTOM
+ 
     headers = {"Content-Type": "application/json"}
     data = {"question": question}
     response = requests.post(api_url, headers=headers, json=data)

@@ -1,9 +1,14 @@
 import boto3
 import uuid
+from enum import Enum
 
 s3 = boto3.client('s3')
 
 CUSTOM_FILE_BUCKET_NAME = "knowledge-base-bucket-demogo-k7sljw" #"demogo-metadata-source-bucket"
+
+class DocumentType(Enum):
+    DEFAULT = 'default'
+    CUSTOM = 'custom'
 
 def check_file_type(uploaded_file):
     file_extension = uploaded_file.name.split('.')[-1].lower()
