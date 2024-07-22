@@ -88,7 +88,7 @@ with st.sidebar: # Sidebar 모델 옵션
     st.markdown('''# Step 3. 끝이에요! 문서의 내용을 질문해보세요 💭 ''')
 
     with st.expander('''현재 업로드된 문서 보기'''):
-        files = util.get_all_files()
+        files = util.get_all_files(st.session_state.document_type)
         st.session_state.document_obj_list = files
         for obj in st.session_state.document_obj_list:
             st.markdown(f'- {obj}')

@@ -3,7 +3,6 @@ import boto3
 import requests
 import uuid
 from enum import Enum
-from variables import DocumentType
 
 s3 = boto3.client('s3')
 
@@ -37,18 +36,12 @@ def upload_file_to_s3(bucket_name, file):
         return e
 
 def upload_file_to_custom_docs_bucket(file, document_type=DocumentType.DEFAULT):
-    if document_type == DocumentType.DEFAULT:
-        bucket_name = DEFAULT_FILE_BUCKET_NAME
-    else:
-        bucket_name = CUSTOM_FILE_BUCKET_NAME
+    bucket_name = DEFAULT_FILE_BUCKET_NAME if document_type == DocumentType.DEFAULT else CUSTOM_FILE_BUCKET_NAME
     key = upload_file_to_s3(bucket_name, file)
     return key
 
 def get_all_files(document_type=DocumentType.DEFAULT):
-    if document_type == DocumentType.DEFAULT:
-        bucket_name = DEFAULT_FILE_BUCKET_NAME
-    else:
-        bucket_name = CUSTOM_FILE_BUCKET_NAME
+    bucket_name = DEFAULT_FILE_BUCKET_NAME if document_type == DocumentType.DEFAULT else CUSTOM_FILE_BUCKET_NAME
     response = s3.list_objects_v2(Bucket=bucket_name)
     file_list = []
     if 'Contents' in response:
@@ -57,17 +50,14 @@ def get_all_files(document_type=DocumentType.DEFAULT):
     return file_list
 
 def initialize_bucket(document_type=DocumentType.DEFAULT):
-    if document_type == DocumentType.DEFAULT:
-        bucket_name = DEFAULT_FILE_BUCKET_NAME
-    else:
-        bucket_name = CUSTOM_FILE_BUCKET_NAME
+    bucket_name = DEFAULT_FILE_BUCKET_NAME if document_type == DocumentType.DEFAULT else CUSTOM_FILE_BUCKET_NAME
     response = s3.list_objects_v2(Bucket=bucket_name)
     if 'Contents' in response:
         objects = [{'Key': obj['Key']} for obj in response['Contents']]
         s3.delete_objects(Bucket=bucket_name, Delete={'Objects': objects})
 
 def query(question, document_type=DocumentType.DEFAULT):
-    
+
     if document_type == DocumentType.DEFAULT:
         api_url = API_URL_BASE + str(DocumentType.DEFAULT)
     else:
