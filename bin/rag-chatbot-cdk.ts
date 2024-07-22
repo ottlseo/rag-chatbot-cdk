@@ -6,6 +6,14 @@ import { QueryKnowledgeBaseStack } from '../lib/queryKnowledgeBaseStack/queryKno
 import { WebStack } from '../lib/webStack/webStack';
 
 const STACK_PREFIX = "RAG-ChatBot";
+const DEFAULT_REGION = "us-west-2";
+const envSetting = {
+  env: {
+    account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
+    region: DEFAULT_REGION,
+  },
+};
+
 const app = new cdk.App();
 
 const syncStack = new SyncKnowledgeBaseStack(app, `${STACK_PREFIX}-SyncKnowledgeBaseStack`, {});
@@ -16,7 +24,7 @@ const queryStack = new QueryKnowledgeBaseStack(app, `${STACK_PREFIX}-QueryKnowle
 });
 queryStack.addDependency(syncStack);
 
-const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, {});
+const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, envSetting);
 webStack.addDependency(queryStack);
 
 app.synth();
