@@ -1,7 +1,7 @@
 import requests
 from utils import DocumentType
 
-API_URL_BASE="https://c7boevvaie.execute-api.us-west-2.amazonaws.com/prod/" # { 'question': '...' }
+API_URL_BASE="https://c051m2z7d2.execute-api.us-west-2.amazonaws.com/prod/" # { 'question': '...' }
 
 def query(question, document_type=DocumentType.DEFAULT):
     

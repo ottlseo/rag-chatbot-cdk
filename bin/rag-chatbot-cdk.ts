@@ -5,7 +5,7 @@ import { SyncKnowledgeBaseStack } from '../lib/syncKnowledgeBaseStack/syncKnowle
 import { QueryKnowledgeBaseStack } from '../lib/queryKnowledgeBaseStack/queryKnowledgeBaseStack';
 import { WebStack } from '../lib/webStack/webStack';
 
-const STACK_PREFIX = "RAG-ChatBot";
+const STACK_PREFIX = "RAGChatBot";
 const DEFAULT_REGION = "us-west-2";
 const envSetting = {
   env: {

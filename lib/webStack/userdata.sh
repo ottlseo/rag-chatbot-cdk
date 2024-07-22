@@ -33,7 +33,7 @@ User=ubuntu
 Environment='AWS_DEFAULT_REGION=us-west-2'
 WorkingDirectory=/home/ubuntu/rag-chatbot-cdk/frontend
 ExecStartPre=/bin/bash -c 'sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8501'
-ExecStart=/bin/bash -c 'source /home/ubuntu/my_env/bin/activate && streamlit run streamlit.py --server.port 8501'
+ExecStart=/bin/bash -c 'source /home/ubuntu/my_env/bin/activate && streamlit run app.py --server.port 8501'
 Restart=always
 
 [Install]
