@@ -1,16 +1,20 @@
 import * as cdk from 'aws-cdk-lib';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 
+interface QueryKnowledgeBaseStackProps extends cdk.StackProps {
+    customKnowledgeBaseId: string;
+    defaultKnowledgeBaseId: string; 
+  }
+  
 export class QueryKnowledgeBaseStack extends cdk.Stack {
-    constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+    constructor(scope: cdk.App, id: string, props: QueryKnowledgeBaseStackProps) {
       super(scope, id, props);
       
       // Getting value from previous stack (syncKnowledgeBase stack)
-      const knowledgeBaseId = cdk.Fn.importValue('CustomKnowledgeBaseId');
-      const knowledgeBaseIdForDefaultDoc = cdk.Fn.importValue('DefaultKnowledgeBaseId');
+      const knowledgeBaseId = props.customKnowledgeBaseId; // cdk.Fn.importValue('CustomKnowledgeBaseId');
+      const knowledgeBaseIdForDefaultDoc = props.defaultKnowledgeBaseId; // cdk.Fn.importValue('DefaultKnowledgeBaseId');
 
       // Query lambda 
       const bedrockAccessPolicy = new iam.PolicyStatement({

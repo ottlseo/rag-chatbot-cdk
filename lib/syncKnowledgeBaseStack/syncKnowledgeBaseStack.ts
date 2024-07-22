@@ -6,6 +6,9 @@ import { bedrock } from '@cdklabs/generative-ai-cdk-constructs';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 
 export class SyncKnowledgeBaseStack extends cdk.Stack {
+  public readonly CustomKnowledgeBaseId: string;
+  public readonly DefaultKnowledgeBaseId: string;
+
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -44,7 +47,7 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
     const lambdaIngestionJob = new lambda.Function(this, "IngestionJob", {
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: "injestJobLambda.handler",
-        code: lambda.Code.fromAsset("./lib/indexingStack"),
+        code: lambda.Code.fromAsset("./lib/syncKnowledgeBaseStack"),
         timeout: cdk.Duration.minutes(5),
         environment: {
           KNOWLEDGE_BASE_ID: knowledgeBase.knowledgeBaseId,
@@ -101,7 +104,7 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
     const lambdaIngestionJobForDefaultDoc = new lambda.Function(this, "IngestionJobForDefaultDoc", {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: "injestJobLambda.handler",
-      code: lambda.Code.fromAsset("./lib/indexingStack"),
+      code: lambda.Code.fromAsset("./lib/syncKnowledgeBaseStack"),
       timeout: cdk.Duration.minutes(5),
       environment: {
         KNOWLEDGE_BASE_ID: knowledgeBaseForDefaultDoc.knowledgeBaseId,
@@ -118,6 +121,9 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
       })
     );
 
+    this.CustomKnowledgeBaseId = knowledgeBase.knowledgeBaseId;
+    this.DefaultKnowledgeBaseId = knowledgeBaseForDefaultDoc.knowledgeBaseId;
+
     new cdk.CfnOutput(this, "dataSourceBucketName", {
       value: bucket.bucketName,
       description: "S3 bucket name for custom uploading data"
@@ -130,12 +136,12 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "dataSourceBucketName-ForDefaultDoc", {
-      value: bucket.bucketName,
+      value: bucketForDefaultDoc.bucketName,
       description: "S3 bucket name for default uploaded data"
     });
 
     new cdk.CfnOutput(this, "KnowledgeBaseId-ForDefaultDoc", {
-      value: knowledgeBase.knowledgeBaseId,
+      value: knowledgeBaseForDefaultDoc.knowledgeBaseId,
       description: "KnowledgeBase ID for default uploaded s3 datasource",
       exportName: "DefaultKnowledgeBaseId"
     });
