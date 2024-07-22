@@ -68,7 +68,7 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
     /** ===== Default docs setting ===== */
 
     const bucketForDefaultDoc = new s3.Bucket(this, 'KnowledgeBaseFilesBucketForDefaultDoc', {
-      bucketName: `knowledge-base-bucket-demogo-${randomstr}-ForDefaultDoc`,
+      bucketName: `knowledge-base-bucket-demogo-${randomstr}-for-default-doc`,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
     // upload sample data in advance
