@@ -7,12 +7,6 @@ import { WebStack } from '../lib/webStack/webStack';
 
 const STACK_PREFIX = "RAGChatBot";
 const DEFAULT_REGION = "us-west-2";
-const envSetting = {
-  env: {
-    account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
-    region: DEFAULT_REGION,
-  },
-};
 
 const app = new cdk.App();
 
@@ -24,7 +18,16 @@ const queryStack = new QueryKnowledgeBaseStack(app, `${STACK_PREFIX}-QueryKnowle
 });
 queryStack.addDependency(syncStack);
 
-const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, envSetting);
-webStack.addDependency(queryStack);
+const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, {
+    api_url_base: queryStack.ApiGatewayEndpoint,
+    custom_file_bucket: syncStack.CustomFileBucketName,
+    default_file_bucket: syncStack.DefaultFileBucketName,
+    env: {
+        account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
+        region: DEFAULT_REGION,
+      },
+});
+// webStack.addDependency(syncStack);
+// webStack.addDependency(queryStack);
 
 app.synth();

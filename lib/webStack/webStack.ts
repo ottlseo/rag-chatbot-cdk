@@ -6,9 +6,19 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as fs from 'fs';
 import * as path from 'path';
 
+interface WebStackProps extends cdk.StackProps {
+  api_url_base: string;
+  custom_file_bucket: string; 
+  default_file_bucket: string; 
+}
+
 export class WebStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: WebStackProps) {
     super(scope, id, props);
+
+    const api_url_base = props.api_url_base;
+    const custom_file_bucket = props.custom_file_bucket;
+    const default_file_bucket = props.default_file_bucket;
 
     // IAM Role to access EC2
     const instanceRole = new iam.Role(this, 'InstanceRole', {
@@ -46,6 +56,10 @@ export class WebStack extends Stack {
     const userData = ec2.UserData.forLinux();
     const userDataScript = fs.readFileSync(path.join(__dirname, 'userdata.sh'), 'utf8');
     userData.addCommands(userDataScript);
+
+    userData.addCommands(`export API_URL_BASE=${api_url_base}`);
+    userData.addCommands(`export CUSTOM_FILE_BUCKET_NAME=${custom_file_bucket}`);
+    userData.addCommands(`export DEFAULT_FILE_BUCKET_NAME=${default_file_bucket}`);
     
     // EC2 instance
     const chatbotAppInstance = new ec2.Instance(this, 'chatbotAppInstance', {

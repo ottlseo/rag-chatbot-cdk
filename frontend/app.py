@@ -1,6 +1,5 @@
 import streamlit as st 
 from langchain.callbacks import StreamlitCallbackHandler
-import apiHandler as api  # 로컬 라이브러리 스크립트에 대한 참조
 import utils as util
 
 def show_document_info_label():
@@ -120,7 +119,7 @@ if st.session_state.document_type == "Use sample document":
         st.chat_message("user").write(query)
         
         # UI 출력
-        answer = api.query(question=query, document_type=util.DocumentType.DEFAULT)
+        answer = util.query(question=query, document_type=util.DocumentType.DEFAULT)
         st.chat_message("assistant").write(answer)
         
         # Session 메세지 저장
@@ -151,7 +150,7 @@ else:
             st.chat_message("user").write(query)
 
             # UI 출력
-            answer = api.query(question=query, document_type=util.DocumentType.CUSTOM)
+            answer = util.query(question=query, document_type=util.DocumentType.CUSTOM)
             st.chat_message("assistant").write(answer)
 
             # Session 메세지 저장

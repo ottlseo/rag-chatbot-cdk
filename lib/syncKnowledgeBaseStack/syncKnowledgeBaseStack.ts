@@ -8,6 +8,8 @@ import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 export class SyncKnowledgeBaseStack extends cdk.Stack {
   public readonly CustomKnowledgeBaseId: string;
   public readonly DefaultKnowledgeBaseId: string;
+  public readonly CustomFileBucketName: string;
+  public readonly DefaultFileBucketName: string;
 
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -77,6 +79,15 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
       destinationBucket: bucketForDefaultDoc
     });
 
+    bucketForDefaultDoc.addToResourcePolicy( // allow to auto-delete
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        principals: [new iam.ServicePrincipal('cloudformation.amazonaws.com')],
+        actions: ['s3:DeleteBucket'],
+        resources: [bucketForDefaultDoc.bucketArn],
+      })
+    );
+
     const knowledgeBaseForDefaultDoc = new bedrock.KnowledgeBase(
       this,
       "bedrock-knowledge-base-demogo-default",
@@ -123,10 +134,13 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
 
     this.CustomKnowledgeBaseId = knowledgeBase.knowledgeBaseId;
     this.DefaultKnowledgeBaseId = knowledgeBaseForDefaultDoc.knowledgeBaseId;
+    this.CustomFileBucketName = bucket.bucketName;
+    this.DefaultFileBucketName = bucketForDefaultDoc.bucketName;
 
     new cdk.CfnOutput(this, "dataSourceBucketName", {
       value: bucket.bucketName,
-      description: "S3 bucket name for custom uploading data"
+      description: "S3 bucket name for custom uploading data",
+      exportName: "CustomFileBucketName"
     });
 
     new cdk.CfnOutput(this, "KnowledgeBaseId", {
@@ -137,7 +151,8 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "dataSourceBucketName-ForDefaultDoc", {
       value: bucketForDefaultDoc.bucketName,
-      description: "S3 bucket name for default uploaded data"
+      description: "S3 bucket name for default uploaded data",
+      exportName: "DefaultFileBucketName"
     });
 
     new cdk.CfnOutput(this, "KnowledgeBaseId-ForDefaultDoc", {
