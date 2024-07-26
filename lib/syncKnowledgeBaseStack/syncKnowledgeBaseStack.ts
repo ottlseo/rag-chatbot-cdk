@@ -6,11 +6,6 @@ import { bedrock } from '@cdklabs/generative-ai-cdk-constructs';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 
 export class SyncKnowledgeBaseStack extends cdk.Stack {
-  public readonly CustomKnowledgeBaseId: string;
-  public readonly DefaultKnowledgeBaseId: string;
-  public readonly CustomFileBucketName: string;
-  public readonly DefaultFileBucketName: string;
-
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -131,11 +126,6 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
         resources: [knowledgeBase.knowledgeBaseArn],
       })
     );
-
-    this.CustomKnowledgeBaseId = knowledgeBase.knowledgeBaseId;
-    this.DefaultKnowledgeBaseId = knowledgeBaseForDefaultDoc.knowledgeBaseId;
-    this.CustomFileBucketName = bucket.bucketName;
-    this.DefaultFileBucketName = bucketForDefaultDoc.bucketName;
 
     new cdk.CfnOutput(this, "dataSourceBucketName", {
       value: bucket.bucketName,

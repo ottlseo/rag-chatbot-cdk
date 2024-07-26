@@ -9,8 +9,6 @@ interface QueryKnowledgeBaseStackProps extends cdk.StackProps {
   }
   
 export class QueryKnowledgeBaseStack extends cdk.Stack {
-    public readonly ApiGatewayEndpoint: string;
-
     constructor(scope: cdk.App, id: string, props: QueryKnowledgeBaseStackProps) {
       super(scope, id, props);
       
@@ -96,12 +94,11 @@ export class QueryKnowledgeBaseStack extends cdk.Stack {
       api.root.addResource("custom").addMethod("POST", queryLambdaIntegration, methodResponse);
       api.root.addResource("default").addMethod("POST", queryDefaultDocLambdaIntegration, methodResponse);
   
-      this.ApiGatewayEndpoint = api.url;
-      
       // API Gateway URL 출력
       new cdk.CfnOutput(this, "ApiGatewayUrl", {
         value: `${api.url}`,
         description: "RAG API endpoint URL for Prod stage",
+        exportName: "ApiGatewayEndpoint"
       }); 
     }
 };

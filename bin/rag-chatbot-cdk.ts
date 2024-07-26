@@ -13,21 +13,21 @@ const app = new cdk.App();
 const syncStack = new SyncKnowledgeBaseStack(app, `${STACK_PREFIX}-SyncKnowledgeBaseStack`, {});
 
 const queryStack = new QueryKnowledgeBaseStack(app, `${STACK_PREFIX}-QueryKnowledgeBaseStack`, {
-    customKnowledgeBaseId: syncStack.CustomKnowledgeBaseId,
-    defaultKnowledgeBaseId: syncStack.DefaultKnowledgeBaseId,
+    customKnowledgeBaseId: cdk.Fn.importValue('CustomKnowledgeBaseId'),
+    defaultKnowledgeBaseId: cdk.Fn.importValue('DefaultKnowledgeBaseId'),
 });
 queryStack.addDependency(syncStack);
 
 const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, {
-    api_url_base: queryStack.ApiGatewayEndpoint,
-    custom_file_bucket: syncStack.CustomFileBucketName,
-    default_file_bucket: syncStack.DefaultFileBucketName,
+    api_url_base: cdk.Fn.importValue('ApiGatewayEndpoint'),
+    custom_file_bucket: cdk.Fn.importValue('CustomFileBucketName'),
+    default_file_bucket: cdk.Fn.importValue('DefaultFileBucketName'),
     env: {
         account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
         region: DEFAULT_REGION,
       },
 });
-// webStack.addDependency(syncStack);
-// webStack.addDependency(queryStack);
+webStack.addDependency(syncStack);
+webStack.addDependency(queryStack);
 
 app.synth();
