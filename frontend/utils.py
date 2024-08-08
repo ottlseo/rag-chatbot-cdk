@@ -10,9 +10,9 @@ class DocumentType(Enum):
     DEFAULT = 'default'
     CUSTOM = 'custom'
 
-API_URL_BASE = "https://rjkvra2t3b.execute-api.us-west-2.amazonaws.com/prod/" #os.environ.get("API_URL_BASE")
-CUSTOM_FILE_BUCKET_NAME = "knowledge-base-bucket-demogo-dznv7h" #os.environ.get("CUSTOM_FILE_BUCKET_NAME")
-DEFAULT_FILE_BUCKET_NAME = "knowledge-base-bucket-demogo-dznv7h-for-default-doc" #os.environ.get("DEFAULT_FILE_BUCKET_NAME")
+API_URL_BASE = os.environ.get("API_URL_BASE")
+CUSTOM_FILE_BUCKET_NAME = os.environ.get("CUSTOM_FILE_BUCKET_NAME")
+DEFAULT_FILE_BUCKET_NAME = os.environ.get("DEFAULT_FILE_BUCKET_NAME")
 
 def check_file_type(uploaded_file):
     file_extension = uploaded_file.name.split('.')[-1].lower()
