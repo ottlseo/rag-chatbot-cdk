@@ -10,11 +10,20 @@ const DEFAULT_REGION = "us-west-2";
 
 const app = new cdk.App();
 
-const syncStack = new SyncKnowledgeBaseStack(app, `${STACK_PREFIX}-SyncKnowledgeBaseStack`, {});
+const syncStack = new SyncKnowledgeBaseStack(app, `${STACK_PREFIX}-SyncKnowledgeBaseStack`, {
+    env: {
+        account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
+        region: DEFAULT_REGION,
+      },
+});
 
 const queryStack = new QueryKnowledgeBaseStack(app, `${STACK_PREFIX}-QueryKnowledgeBaseStack`, {
     customKnowledgeBaseId: cdk.Fn.importValue('CustomKnowledgeBaseId'),
     defaultKnowledgeBaseId: cdk.Fn.importValue('DefaultKnowledgeBaseId'),
+    env: {
+        account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
+        region: DEFAULT_REGION,
+      },
 });
 queryStack.addDependency(syncStack);
 
