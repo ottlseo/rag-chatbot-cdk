@@ -91,10 +91,7 @@ with st.sidebar: # Sidebar 모델 옵션
     with st.expander('''현재 업로드된 문서 보기'''):
         is_sample_doc = st.session_state.document_type == "Use sample document"
         
-        files = util.get_all_files(
-            document_type=st.session_state.document_type
-            )
-        st.session_state.document_obj_list = files
+        st.session_state.document_obj_list = util.get_all_files(document_type=st.session_state.document_type)
         for obj in st.session_state.document_obj_list:
             st.markdown(f'- {obj}')
 
