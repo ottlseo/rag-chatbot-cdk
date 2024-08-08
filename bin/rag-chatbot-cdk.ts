@@ -36,5 +36,6 @@ const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, {
         region: DEFAULT_REGION,
       },
 });
+webStack.addDependency(queryStack);
 
 app.synth();

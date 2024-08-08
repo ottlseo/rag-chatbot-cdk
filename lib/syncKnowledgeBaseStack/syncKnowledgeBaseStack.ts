@@ -13,6 +13,7 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
     const randomstr = Math.random().toString(36).substring(2,8);
     const bucket = new s3.Bucket(this, 'KnowledgeBaseFilesBucket', {
         bucketName: `knowledge-base-bucket-demogo-${randomstr}`,
+        autoDeleteObjects: true, // 버킷 내 객체를 자동으로 삭제
         removalPolicy: cdk.RemovalPolicy.DESTROY,
       });
     
@@ -66,6 +67,7 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
 
     const bucketForDefaultDoc = new s3.Bucket(this, 'KnowledgeBaseFilesBucketForDefaultDoc', {
       bucketName: `knowledge-base-bucket-demogo-${randomstr}-for-default-doc`,
+      autoDeleteObjects: true, // 버킷 내 객체를 자동으로 삭제
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
     // upload sample data in advance

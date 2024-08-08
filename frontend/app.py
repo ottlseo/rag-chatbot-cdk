@@ -7,7 +7,7 @@ def show_document_info_label():
     with st.container(border=True):
         if st.session_state.document_type == "Use sample document":
             st.markdown('''#### 💁 기본 제공 문서로 RAG 챗봇 이용하기 ''') 
-            st.markdown('''📝 현재 기본 문서인 [**산업안전보건법 PDF 문서**](https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=253521&lsId=001766&chrClsCd=010202&urlMode=lsInfoP#0000)를 활용하고 있습니다.''')
+            st.markdown('''📝 현재 기본 문서인 [**산업안전보건법 PDF 문서**](https://d14ojpq4k4igb1.cloudfront.net/default_document.pdf)를 활용하고 있습니다.''')
             st.markdown('''다른 문서로 챗봇 서비스를 이용해보고 싶다면 왼쪽 사이드바의 Step 1에서 *'Upload your document'* 옵션을 클릭하고, 문서를 새로 인덱싱하여 사용해보세요.''')
         else:
             st.markdown('''#### 💁‍♀️ 원하는 문서를 기반으로 RAG 챗봇 이용하기 Guide''') 
