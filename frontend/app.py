@@ -1,4 +1,5 @@
 import streamlit as st 
+from streamlit_js_eval import streamlit_js_eval
 from langchain.callbacks import StreamlitCallbackHandler
 import utils as util
 
@@ -24,16 +25,16 @@ def custom_file_uploader():
             )
         
         if uploaded_files:
-            for uploaded_file in uploaded_files:
-                if not util.check_file_type(uploaded_file):
-                    st.markdown(f':red[🚨 지원하지 않는 파일 형식입니다]: {uploaded_file.name}')
-                else:
-                    with st.spinner("문서를 S3에 업로드하는 중입니다."):
-                        # if st.session_state.document_obj_name == None:
-                        upload_result = util.upload_file_to_custom_docs_bucket(uploaded_file)
-                        st.session_state.document_obj_name = upload_result
-                        # TODO: embedding_result 받아오는 코드 추가
-                    st.markdown(f':green[✅ 파일 업로드 완료]: {st.session_state.document_obj_name}')
+            uploaded_file = uploaded_files[-1]
+            if not util.check_file_type(uploaded_file):
+                st.markdown(f':red[🚨 지원하지 않는 파일 형식입니다]: {uploaded_file.name}')
+            else:
+                st.session_state.is_initialized = False
+                with st.spinner("문서를 S3에 업로드하는 중입니다."):
+                    upload_result = util.upload_file_to_custom_docs_bucket(uploaded_file, document_type=st.session_state.document_type)
+                    st.session_state.document_obj_name = upload_result
+                    # TODO: embedding_result 받아오는 코드 추가
+                st.markdown(f':green[✅ 파일 업로드 완료]: {st.session_state.document_obj_name}')
     
 ####################### Application ###############################
 st.set_page_config(layout="wide")
@@ -88,14 +89,23 @@ with st.sidebar: # Sidebar 모델 옵션
     st.markdown('''# Step 3. 끝이에요! 문서의 내용을 질문해보세요 💭 ''')
 
     with st.expander('''현재 업로드된 문서 보기'''):
-        files = util.get_all_files(st.session_state.document_type)
+        is_sample_doc = st.session_state.document_type == "Use sample document"
+        
+        files = util.get_all_files(
+            document_type=st.session_state.document_type
+            )
         st.session_state.document_obj_list = files
         for obj in st.session_state.document_obj_list:
             st.markdown(f'- {obj}')
 
-        if st.button("버킷 초기화하기", type="primary"):
-            util.initialize_bucket()
+        if st.button("버킷 초기화하기", 
+                     type="primary", 
+                     disabled=is_sample_doc
+                     ):
+            streamlit_js_eval(js_expressions="parent.window.location.reload()")
+            util.initialize_bucket(document_type=st.session_state.document_type)
             st.session_state.document_obj_list = []
+            # st.session_state.is_initialized = True
 
 ###### Use sample document ######
 if st.session_state.document_type == "Use sample document":

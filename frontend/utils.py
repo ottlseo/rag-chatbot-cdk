@@ -10,9 +10,9 @@ class DocumentType(Enum):
     DEFAULT = 'default'
     CUSTOM = 'custom'
 
-API_URL_BASE = os.environ.get("API_URL_BASE")
-CUSTOM_FILE_BUCKET_NAME = os.environ.get("CUSTOM_FILE_BUCKET_NAME")
-DEFAULT_FILE_BUCKET_NAME = os.environ.get("DEFAULT_FILE_BUCKET_NAME")
+API_URL_BASE = "https://rjkvra2t3b.execute-api.us-west-2.amazonaws.com/prod/" #os.environ.get("API_URL_BASE")
+CUSTOM_FILE_BUCKET_NAME = "knowledge-base-bucket-demogo-dznv7h" #os.environ.get("CUSTOM_FILE_BUCKET_NAME")
+DEFAULT_FILE_BUCKET_NAME = "knowledge-base-bucket-demogo-dznv7h-for-default-doc" #os.environ.get("DEFAULT_FILE_BUCKET_NAME")
 
 def check_file_type(uploaded_file):
     file_extension = uploaded_file.name.split('.')[-1].lower()
@@ -56,7 +56,7 @@ def initialize_bucket(document_type=DocumentType.DEFAULT):
         objects = [{'Key': obj['Key']} for obj in response['Contents']]
         s3.delete_objects(Bucket=bucket_name, Delete={'Objects': objects})
 
-def query(question, document_type=DocumentType.DEFAULT):
+def query(question="", document_type=DocumentType.DEFAULT):
 
     if document_type == DocumentType.DEFAULT:
         api_url = API_URL_BASE + str(DocumentType.DEFAULT)
@@ -66,15 +66,17 @@ def query(question, document_type=DocumentType.DEFAULT):
     headers = {"Content-Type": "application/json"}
     data = {"question": question}
     response = requests.post(api_url, headers=headers, json=data)
-
-    if response.status_code == 200:
-        result = response.json()
-        return result
-        # if 'response' in result:
-        #     return result['response']
-        # else: 
-        #     return result
-    else:
-        error_message = f"API 요청 실패: {response.status_code}"
-        return {"error": error_message}
+    print(response)
+    result = response.json()
+    return result 
+    # if response.status_code == 200:
+    #     result = response.json()
+    #     return result
+    #     # if 'response' in result:
+    #     #     return result['response']
+    #     # else: 
+    #     #     return result
+    # else:
+    #     error_message = f"API 요청 실패: {response.status_code}"
+    #     return {"error": error_message}
     
