@@ -2,6 +2,7 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -57,9 +58,24 @@ export class WebStack extends Stack {
     const userDataScript = fs.readFileSync(path.join(__dirname, 'userdata.sh'), 'utf8');
     userData.addCommands(userDataScript);
 
-    userData.addCommands(`export API_URL_BASE=${api_url_base}`);
-    userData.addCommands(`export CUSTOM_FILE_BUCKET_NAME=${custom_file_bucket}`);
-    userData.addCommands(`export DEFAULT_FILE_BUCKET_NAME=${default_file_bucket}`);
+    // userData.addCommands(`export API_URL_BASE=${api_url_base}`);
+    // userData.addCommands(`export CUSTOM_FILE_BUCKET_NAME=${custom_file_bucket}`);
+    // userData.addCommands(`export DEFAULT_FILE_BUCKET_NAME=${default_file_bucket}`);
+  
+    const apiUrlBaseParam = new ssm.StringParameter(this, 'APIURLBaseParam', {
+      parameterName: '/RAGChatBot/API_URL_BASE',
+      stringValue: api_url_base,
+    });
+
+    const customFileBucketParam = new ssm.StringParameter(this, 'CustomFileBucketParam', {
+      parameterName: '/RAGChatBot/CUSTOM_FILE_BUCKET_NAME',
+      stringValue: custom_file_bucket,
+    });
+
+    const defaultFileBucketParam = new ssm.StringParameter(this, 'DefaultFileBucketParam', {
+      parameterName: '/RAGChatBot/DEFAULT_FILE_BUCKET_NAME',
+      stringValue: default_file_bucket,
+    });
     
     // EC2 instance
     const chatbotAppInstance = new ec2.Instance(this, 'chatbotAppInstance', {

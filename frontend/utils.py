@@ -5,14 +5,19 @@ import uuid
 from enum import Enum
 
 s3 = boto3.client('s3')
+ssm = boto3.client('ssm')
 
 class DocumentType(Enum):
     DEFAULT = 'default'
     CUSTOM = 'custom'
 
-API_URL_BASE = os.environ.get("API_URL_BASE")
-CUSTOM_FILE_BUCKET_NAME = os.environ.get("CUSTOM_FILE_BUCKET_NAME")
-DEFAULT_FILE_BUCKET_NAME = os.environ.get("DEFAULT_FILE_BUCKET_NAME")
+def get_parameter_value(parameter_name):
+    response = ssm.get_parameter(Name=parameter_name, WithDecryption=True)
+    return response['Parameter']['Value']
+
+API_URL_BASE = get_parameter_value("/RAGChatBot/API_URL_BASE")
+CUSTOM_FILE_BUCKET_NAME = get_parameter_value("/RAGChatBot/CUSTOM_FILE_BUCKET_NAME")
+DEFAULT_FILE_BUCKET_NAME = get_parameter_value("/RAGChatBot/DEFAULT_FILE_BUCKET_NAME")
 
 def check_file_type(uploaded_file):
     file_extension = uploaded_file.name.split('.')[-1].lower()
