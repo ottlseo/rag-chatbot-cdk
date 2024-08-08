@@ -26,15 +26,15 @@ def custom_file_uploader():
         
         if uploaded_files:
             uploaded_file = uploaded_files[-1]
-            if not util.check_file_type(uploaded_file):
-                st.markdown(f':red[🚨 지원하지 않는 파일 형식입니다]: {uploaded_file.name}')
-            else:
-                st.session_state.is_initialized = False
-                with st.spinner("문서를 S3에 업로드하는 중입니다."):
-                    upload_result = util.upload_file_to_custom_docs_bucket(uploaded_file, document_type=st.session_state.document_type)
-                    st.session_state.document_obj_name = upload_result
-                    # TODO: embedding_result 받아오는 코드 추가
-                st.markdown(f':green[✅ 파일 업로드 완료]: {st.session_state.document_obj_name}')
+            if not uploaded_file.name != st.session_state.document_obj_name:
+                if not util.check_file_type(uploaded_file):
+                    st.markdown(f':red[🚨 지원하지 않는 파일 형식입니다]: {uploaded_file.name}')
+                else:
+                    upload_result = ""
+                    with st.spinner("문서를 S3에 업로드하는 중입니다."):
+                        upload_result = util.upload_file_to_custom_docs_bucket(uploaded_file, document_type=st.session_state.document_type)
+                        st.session_state.document_obj_name = uploaded_file.name
+                    st.markdown(f':green[✅ 파일 업로드 완료]: {upload_result}')
     
 ####################### Application ###############################
 st.set_page_config(layout="wide")
@@ -102,7 +102,6 @@ with st.sidebar: # Sidebar 모델 옵션
             streamlit_js_eval(js_expressions="parent.window.location.reload()")
             util.initialize_bucket(document_type=st.session_state.document_type)
             st.session_state.document_obj_list = []
-            # st.session_state.is_initialized = True
 
 ###### Use sample document ######
 if st.session_state.document_type == "Use sample document":

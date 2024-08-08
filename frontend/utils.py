@@ -68,9 +68,15 @@ def query(question="", document_type=DocumentType.DEFAULT):
     else:
         api_url = API_URL_BASE + str(DocumentType.CUSTOM)
  
-    headers = {"Content-Type": "application/json"}
-    data = {"question": question}
-    response = requests.post(api_url, headers=headers, json=data)
+    response = requests.post(
+        api_url, 
+        headers={
+            "Content-Type": "application/json"
+        },
+        json={
+            "question": question
+        }
+    )
     print(response)
     result = response.json()
     return result 
