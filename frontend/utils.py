@@ -15,7 +15,7 @@ def get_params(key, enc=False):
     )
     return response['Parameters'][0]['Value']
 
-DEFAULT = "Use sample document"
+DEFAULT = "Use a sample PDF"
 CUSTOM = "Upload your document"
 
 API_URL_BASE = get_params(key="/RAGChatBot/API_URL_BASE", enc=False)
@@ -45,11 +45,8 @@ def upload_file_to_custom_docs_bucket(file):
     return key
 
 def get_all_files(document_type=DEFAULT):
-    print(document_type)
     bucket_name = DEFAULT_FILE_BUCKET_NAME if document_type == DEFAULT else CUSTOM_FILE_BUCKET_NAME
     response = s3.list_objects_v2(Bucket=bucket_name)
-    print(response)
-
     file_list = []
     if 'Contents' in response:
         for obj in response['Contents']:

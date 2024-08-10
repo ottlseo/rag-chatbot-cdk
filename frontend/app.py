@@ -7,26 +7,24 @@ from utils import DEFAULT, CUSTOM
 def show_document_info_label():
     with st.container(border=True):
         if st.session_state.document_type == DEFAULT:
-            # st.markdown('''#### 💁 기본 제공 문서로 RAG 챗봇 이용하기 ''') 
             st.markdown('''📝 현재 기본 문서인 [**산업안전보건법 PDF 문서**](https://d14ojpq4k4igb1.cloudfront.net/default_document.pdf)를 활용하고 있습니다.''')
             st.markdown('''다른 문서로 챗봇 서비스를 이용해보고 싶다면 왼쪽 사이드바의 Step 1에서 *'Upload your document'* 옵션을 클릭하고, 문서를 새로 인덱싱하여 사용해보세요.''')
         else:
-            # st.markdown('''#### 💁‍♀️ 원하는 문서를 기반으로 RAG 챗봇 이용하기 Guide''') 
             st.markdown('''**원하는 문서를 기반으로 챗봇을 이용하시려면, 왼쪽 사이드바의 Step 2를 따라 문서를 업로드** 해주세요. 새로운 문서를 Knowledge Base에 인덱싱하는 데에는 **약 1~3분 정도** 소요될 수 있어요.''')
-            st.markdown('''기본 제공 문서 (산업안전보건법 PDF)로 돌아가고 싶다면 사이드바의 Step 1에서 *'Use sample document'* 옵션을 선택하면 바로 변경할 수 있습니다.''')
+            st.markdown('''기본 제공 문서 (산업안전보건법 PDF)로 돌아가고 싶다면 사이드바의 Step 1에서 *'Use a sample PDF'* 옵션을 선택하면 바로 변경할 수 있습니다.''')
 
 def custom_file_uploader():
     with st.container(border=True):
-        st.markdown('''#### 챗봇 서비스에 활용하고자 하는 문서를 업로드해보세요 👇''')
         uploaded_files = st.file_uploader(
-            '''`.pdf` `.doc` `.docx` `.txt` `.md` `.html` `.csv` `.xls` `.xlsx`    
-            지원하는 파일 형식은 위와 같습니다.''',
+            '''챗봇 서비스에 활용하고자 하는 문서를 업로드해보세요 👇    
+            지원하는 파일 형식은 아래와 같습니다.   
+            `.pdf` `.doc` `.docx` `.txt` `.md` `.html` `.csv` `.xls` `.xlsx`    
+            ''',
             disabled=st.session_state.document_type==DEFAULT,
             accept_multiple_files=True
             )
         
         if uploaded_files:
-            print(uploaded_files)
             uploaded_file = uploaded_files[-1]
             if uploaded_file.name != st.session_state.document_obj_name:
                 if not util.check_file_type(uploaded_file):
@@ -84,7 +82,7 @@ with st.sidebar: # Sidebar 모델 옵션
             [CUSTOM, DEFAULT],
             captions = [
                 "원하시는 문서를 직접 업로드할 수 있어요.", 
-                "업로드할 적절한 문서가 없다면, 샘플로 제공되는 '산업안전보건법' pdf 문서를 이용할 수 있어요."
+                "업로드할 적절한 문서가 없다면, 샘플로 제공되는 '산업안전보건법' PDF 문서를 이용할 수 있어요."
             ],
             key="document_type",
             # on_change={streamlit_js_eval(js_expressions="parent.window.location.reload()")},
@@ -96,9 +94,6 @@ with st.sidebar: # Sidebar 모델 옵션
 
     with st.expander('''현재 업로드된 문서 보기'''):
         is_sample_doc = st.session_state.document_type == DEFAULT
-        print("\n\n\n\n\n========")
-        print(is_sample_doc)
-        print(st.session_state.document_type)
         st.session_state.document_obj_list = util.get_all_files(document_type=st.session_state.document_type)
         for obj in st.session_state.document_obj_list:
             st.markdown(f'- {obj}')
@@ -144,7 +139,12 @@ else:
     show_document_info_label()
     
     if st.session_state.document_obj_list == []: 
-        st.markdown('''##### :red[왼쪽에서 먼저 문서를 업로드해주세요.]''')
+        # st.markdown('''##### ⚠️ :red[왼쪽에서 먼저 문서를 업로드해주세요.]''')
+        st.markdown('''
+                    <h5 style='text-align: center; color: red;'>
+                        ⚠️ 왼쪽에서 먼저 문서를 업로드해주세요.
+                    </h5>
+                    ''', unsafe_allow_html=True)
     else: # 업로드된 문서가 있는 경우
         if "messages" not in st.session_state:
             st.session_state["messages"] = [
