@@ -2,11 +2,11 @@ import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 from langchain.callbacks import StreamlitCallbackHandler
 import utils as util
-from utils import DocumentType
+from utils import DEFAULT, CUSTOM
 
 def show_document_info_label():
     with st.container(border=True):
-        if st.session_state.document_type == DocumentType.DEFAULT:
+        if st.session_state.document_type == DEFAULT:
             # st.markdown('''#### 💁 기본 제공 문서로 RAG 챗봇 이용하기 ''') 
             st.markdown('''📝 현재 기본 문서인 [**산업안전보건법 PDF 문서**](https://d14ojpq4k4igb1.cloudfront.net/default_document.pdf)를 활용하고 있습니다.''')
             st.markdown('''다른 문서로 챗봇 서비스를 이용해보고 싶다면 왼쪽 사이드바의 Step 1에서 *'Upload your document'* 옵션을 클릭하고, 문서를 새로 인덱싱하여 사용해보세요.''')
@@ -21,7 +21,7 @@ def custom_file_uploader():
         uploaded_files = st.file_uploader(
             '''`.pdf` `.doc` `.docx` `.txt` `.md` `.html` `.csv` `.xls` `.xlsx`    
             지원하는 파일 형식은 위와 같습니다.''',
-            disabled=st.session_state.document_type==DocumentType.DEFAULT,
+            disabled=st.session_state.document_type==DEFAULT,
             accept_multiple_files=True
             )
         
@@ -69,7 +69,7 @@ st.markdown('''- [Github](https://github.com/ottlseo/rag-chatbot-cdk)에서 코�
 
 # Store the initial value of widgets in session state
 if "document_type" not in st.session_state:
-    st.session_state.document_type = DocumentType.CUSTOM
+    st.session_state.document_type = CUSTOM
 if "document_obj_name" not in st.session_state:
     st.session_state.document_obj_name = None
 if "document_obj_list" not in st.session_state:
@@ -81,7 +81,7 @@ with st.sidebar: # Sidebar 모델 옵션
     with st.container(border=True):
         st.radio(
             "RAG를 어떤 문서로 인덱싱할까요? 직접 선택해보세요.",
-            [DocumentType.CUSTOM, DocumentType.DEFAULT],
+            [CUSTOM, DEFAULT],
             captions = [
                 "원하시는 문서를 직접 업로드할 수 있어요.", 
                 "업로드할 적절한 문서가 없다면, 샘플로 제공되는 '산업안전보건법' pdf 문서를 이용할 수 있어요."
@@ -95,7 +95,7 @@ with st.sidebar: # Sidebar 모델 옵션
     st.markdown('''# Step 3. 끝이에요! 문서의 내용을 질문해보세요 💭 ''')
 
     with st.expander('''현재 업로드된 문서 보기'''):
-        is_sample_doc = st.session_state.document_type == DocumentType.DEFAULT
+        is_sample_doc = st.session_state.document_type == DEFAULT
         print("\n\n\n\n\n========")
         print(is_sample_doc)
         print(st.session_state.document_type)
@@ -112,7 +112,7 @@ with st.sidebar: # Sidebar 모델 옵션
             st.session_state.document_obj_list = []
 
 ###### Use sample document ######
-if st.session_state.document_type == DocumentType.DEFAULT:
+if st.session_state.document_type == DEFAULT:
     show_document_info_label()
     
     if "messages" not in st.session_state:
@@ -133,7 +133,7 @@ if st.session_state.document_type == DocumentType.DEFAULT:
         st.chat_message("user").write(query)
         
         # UI 출력
-        answer = util.query(question=query, document_type=util.DocumentType.DEFAULT)
+        answer = util.query(question=query, document_type=DEFAULT)
         st.chat_message("assistant").write(answer)
         
         # Session 메세지 저장
@@ -164,7 +164,7 @@ else:
             st.chat_message("user").write(query)
 
             # UI 출력
-            answer = util.query(question=query, document_type=util.DocumentType.CUSTOM)
+            answer = util.query(question=query, document_type=CUSTOM)
             st.chat_message("assistant").write(answer)
 
             # Session 메세지 저장
