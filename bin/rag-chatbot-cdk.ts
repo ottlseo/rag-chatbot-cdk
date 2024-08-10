@@ -28,9 +28,6 @@ const queryStack = new QueryKnowledgeBaseStack(app, `${STACK_PREFIX}-QueryKnowle
 queryStack.addDependency(syncStack);
 
 const webStack = new WebStack(app, `${STACK_PREFIX}-WebStack`, {
-    api_url_base: cdk.Fn.importValue('ApiGatewayEndpoint'),
-    custom_file_bucket: cdk.Fn.importValue('CustomFileBucketName'),
-    default_file_bucket: cdk.Fn.importValue('DefaultFileBucketName'),
     env: {
         account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
         region: DEFAULT_REGION,

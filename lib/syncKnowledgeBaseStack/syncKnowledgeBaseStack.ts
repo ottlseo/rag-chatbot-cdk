@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { bedrock } from '@cdklabs/generative-ai-cdk-constructs';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 
@@ -129,10 +130,21 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
       })
     );
 
+    /* EC2 streamlit app에서 참조하기 위한 Bucket의 이름을 parameter store에 저장 */
+    new ssm.StringParameter(this, 'CustomFileBucketParam', {
+      parameterName: '/RAGChatBot/CUSTOM_FILE_BUCKET_NAME',
+      stringValue: bucket.bucketName,
+    });
+
+    new ssm.StringParameter(this, 'DefaultFileBucketParam', {
+      parameterName: '/RAGChatBot/DEFAULT_FILE_BUCKET_NAME',
+      stringValue: bucketForDefaultDoc.bucketName,
+    });
+
+    // 생성된 Bucket name, Knowledge Base Id를 출력
     new cdk.CfnOutput(this, "dataSourceBucketName", {
       value: bucket.bucketName,
       description: "S3 bucket name for custom uploading data",
-      exportName: "CustomFileBucketName"
     });
 
     new cdk.CfnOutput(this, "KnowledgeBaseId", {
@@ -143,8 +155,7 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "dataSourceBucketName-ForDefaultDoc", {
       value: bucketForDefaultDoc.bucketName,
-      description: "S3 bucket name for default uploaded data",
-      exportName: "DefaultFileBucketName"
+      description: "S3 bucket name for default uploaded data"
     });
 
     new cdk.CfnOutput(this, "KnowledgeBaseId-ForDefaultDoc", {

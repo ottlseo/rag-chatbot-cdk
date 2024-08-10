@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 
 interface QueryKnowledgeBaseStackProps extends cdk.StackProps {
@@ -94,6 +95,12 @@ export class QueryKnowledgeBaseStack extends cdk.Stack {
       api.root.addResource("custom").addMethod("POST", queryLambdaIntegration, methodResponse);
       api.root.addResource("default").addMethod("POST", queryDefaultDocLambdaIntegration, methodResponse);
   
+      // EC2 streamlit app에서 참조하기 위한 API Endpoint url을 parameter store에 저장
+      new ssm.StringParameter(this, 'APIURLBaseParam', {
+        parameterName: '/RAGChatBot/API_URL_BASE',
+        stringValue: api.url,
+      });
+
       // API Gateway URL 출력
       new cdk.CfnOutput(this, "ApiGatewayUrl", {
         value: `${api.url}`,
