@@ -9,11 +9,7 @@ Bedrock Knowledge Base와 CDK로 한 번에 배포하는 RAG 챗봇
 1. SyncKnowledgeBase Lambda는 S3 버킷에 문서가 업로드될 때 트리거되며, 내부에서 Knowledge Base와 연동된 Bedrock agent를 호출하여 문서 인덱싱을 진행하고 Knowledge Base를 업데이트합니다. 
 2. 업데이트된 Knowledge Base를 활용해, 사용자가 질문을 입력하면 문서를 바탕으로 답변을 생성하는 RAG Query 기능이 API 형태로 배포됩니다. API Gateway와 QueryKnowledgeBase Lambda로 구성되었으며, 사용자는 해당 API를 함께 제공되는 Streamlit Chatbot 애플리케이션에서 직접 테스트하거나, 또는 원하는 애플리케이션에서 호출해 사용할 수 있습니다. 
 
-## Demo
-TBD
-
 # How to build
-
 
 ## 사전 요구사항
 
@@ -74,3 +70,8 @@ y
 ## 웹 애플리케이션에 접속하기
 
 배포가 완료되면 `RAGChatBot-WebStack.chatbotAppUrl`이라는 Output을 제공합니다. 이 IP 주소를 브라우저 입력창에 입력하여 Chatbot에 접속합니다. (인스턴스 프로비저닝 시간이 필요하므로 바로 접속이 안 되면 2~3분 후에 다시 시도해 주시기 바랍니다.)
+
+
+# Demo
+https://d14ojpq4k4igb1.cloudfront.net/RAG_Chatbot_Demo.mp4
+
