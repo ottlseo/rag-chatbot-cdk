@@ -24,6 +24,7 @@ export class SyncKnowledgeBaseStack extends cdk.Stack {
       {
           embeddingsModel: bedrock.BedrockFoundationModel.TITAN_EMBED_TEXT_V1,
       }
+      // "parsingConfiguration": parsingConfiguration
     );
 
     const dataSource = new bedrock.S3DataSource(
