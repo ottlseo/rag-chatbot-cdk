@@ -14,7 +14,12 @@ def query(question):
             'type': 'KNOWLEDGE_BASE',
             'knowledgeBaseConfiguration': {
                 'knowledgeBaseId': KNOWLEDGE_BASE_ID,
-                'modelArn': model_arn
+                'modelArn': model_arn,
+                'retrievalConfiguration': {
+                    'vectorSearchConfiguration': {
+                        'overrideSearchType': 'HYBRID'
+                    }
+                }
             }
         },
     )
