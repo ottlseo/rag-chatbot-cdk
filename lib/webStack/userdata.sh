@@ -11,15 +11,16 @@ sudo apt-get install -y python3.8-venv
 
 # Clone repository
 cd /home/ubuntu
-sudo git clone https://github.com/ottlseo/rag-chatbot-cdk.git
+sudo git clone https://github.com/ottlseo/bedrock-rag-chatbot.git
 
 # Create virtual environment
 sudo python3 -m venv --copies /home/ubuntu/my_env
 sudo chown -R ubuntu:ubuntu /home/ubuntu/my_env
 source /home/ubuntu/my_env/bin/activate
 
+cd bedrock-rag-chatbot
+
 # Install dependencies
-cd rag-chatbot-cdk/frontend
 pip3 install -r requirements.txt
 
 # Create systemd service
@@ -31,9 +32,9 @@ After=network.target
 [Service]
 User=ubuntu
 Environment='AWS_DEFAULT_REGION=us-west-2'
-WorkingDirectory=/home/ubuntu/rag-chatbot-cdk/frontend
+WorkingDirectory=/home/ubuntu/bedrock-rag-chatbot
 ExecStartPre=/bin/bash -c 'sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8501'
-ExecStart=/bin/bash -c 'source /home/ubuntu/my_env/bin/activate && streamlit run app.py --server.port 8501'
+ExecStart=/bin/bash -c 'source /home/ubuntu/my_env/bin/activate && streamlit run streamlit.py --server.port 8501'
 Restart=always
 
 [Install]

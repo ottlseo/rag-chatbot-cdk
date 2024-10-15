@@ -3,12 +3,23 @@ import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as fs from 'fs';
 import * as path from 'path';
 
+interface WebStackProps extends cdk.StackProps {
+  knowledgeBaseId: string;
+}
+
 export class WebStack extends Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: WebStackProps) {
     super(scope, id, props);
+
+    // Create SSM Parameter
+    const knowledgeBaseIdParameter = new ssm.StringParameter(this, 'KnowledgeBaseIdParameter', {
+      parameterName: '/RAGChatBot/KNOWLEDGE_BASE_ID',
+      stringValue: props.knowledgeBaseId,
+    });
 
     // IAM Role to access EC2
     const instanceRole = new iam.Role(this, 'InstanceRole', {
