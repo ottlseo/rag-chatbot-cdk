@@ -164,7 +164,6 @@ else:
             st.chat_message("user").write(query)
 
             # UI 출력
-            print(query)
             answer = util.query(CUSTOM, question=query)
             st.chat_message("assistant").write(answer)
 

@@ -63,7 +63,6 @@ def initialize_bucket(document_type):
 
 def query(document_type, question=""):
     api_url = API_URL_BASE+'default' if document_type == DEFAULT else API_URL_BASE+'custom'
-    print(api_url)
     response = requests.post(
         api_url, 
         headers={
@@ -74,14 +73,14 @@ def query(document_type, question=""):
         }
     )
     if response.status_code == 200:
-        print(response)
-        
         try:
             result = json.loads(response.json())
-            print(result)
+        
         except: # for debugging
             result = response.json() 
+        
         return result["response"] if "response" in result else result
+    
     else:
         error_message = f"API 요청 실패: {response.status_code}"
         return {"error": error_message}
