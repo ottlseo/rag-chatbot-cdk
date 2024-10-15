@@ -44,7 +44,7 @@ def upload_file_to_custom_docs_bucket(file):
     key = upload_file_to_s3(CUSTOM_FILE_BUCKET_NAME, file)
     return key
 
-def get_all_files(document_type=DEFAULT):
+def get_all_files(document_type):
     bucket_name = DEFAULT_FILE_BUCKET_NAME if document_type == DEFAULT else CUSTOM_FILE_BUCKET_NAME
     response = s3.list_objects_v2(Bucket=bucket_name)
     file_list = []
@@ -53,7 +53,7 @@ def get_all_files(document_type=DEFAULT):
             file_list.append(obj['Key'])
     return file_list
 
-def initialize_bucket(document_type=DEFAULT):
+def initialize_bucket(document_type):
     bucket_name = DEFAULT_FILE_BUCKET_NAME if document_type == DEFAULT else CUSTOM_FILE_BUCKET_NAME
     
     response = s3.list_objects_v2(Bucket=bucket_name)
@@ -61,8 +61,9 @@ def initialize_bucket(document_type=DEFAULT):
         objects = [{'Key': obj['Key']} for obj in response['Contents']]
         s3.delete_objects(Bucket=bucket_name, Delete={'Objects': objects})
 
-def query(question="", document_type=DEFAULT):
+def query(document_type, question=""):
     api_url = API_URL_BASE+'default' if document_type == DEFAULT else API_URL_BASE+'custom'
+    print(api_url)
     response = requests.post(
         api_url, 
         headers={
@@ -73,7 +74,13 @@ def query(question="", document_type=DEFAULT):
         }
     )
     if response.status_code == 200:
-        result = json.loads(response.json())
+        print(response)
+        
+        try:
+            result = json.loads(response.json())
+            print(result)
+        except: # for debugging
+            result = response.json() 
         return result["response"] if "response" in result else result
     else:
         error_message = f"API 요청 실패: {response.status_code}"

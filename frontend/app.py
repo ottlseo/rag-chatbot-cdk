@@ -128,7 +128,7 @@ if st.session_state.document_type == DEFAULT:
         st.chat_message("user").write(query)
         
         # UI 출력
-        answer = util.query(question=query, document_type=DEFAULT)
+        answer = util.query(DEFAULT, question=query)
         st.chat_message("assistant").write(answer)
         
         # Session 메세지 저장
@@ -164,7 +164,8 @@ else:
             st.chat_message("user").write(query)
 
             # UI 출력
-            answer = util.query(question=query, document_type=CUSTOM)
+            print(query)
+            answer = util.query(CUSTOM, question=query)
             st.chat_message("assistant").write(answer)
 
             # Session 메세지 저장
